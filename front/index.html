@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cine Avenida - Boletería</title>
+    <link rel="stylesheet" href="estilos.css">
+</head>
+
+<body>
+
+    <header class="encabezado">
+        <h1> CINE AVENIDA</h1>
+        <p>Boletería y cartelera</p>
+    </header>
+
+    <nav class="navegacion">
+        <a href="#funciones">Funciones</a>
+        <a href="#cartelera">Cartelera</a>
+        <a href="#laboratorio">Laboratorio async</a>
+    </nav>
+
+    <main class="principal">
+
+        <!-- KPIs -->
+        <section class="resumen">
+            <div class="kpi">
+                <p class="kpi-valor" id="kpiEntradas">—</p>
+                <p class="kpi-titulo">Entradas vendidas</p>
+            </div>
+            <div class="kpi">
+                <p class="kpi-valor" id="kpiRecaudado">—</p>
+                <p class="kpi-titulo">Recaudado</p>
+            </div>
+            <div class="kpi">
+                <p class="kpi-valor" id="kpiFunciones">—</p>
+                <p class="kpi-titulo">Funciones próximas</p>
+            </div>
+        </section>
+
+        <div class="fila">
+
+            <!-- Funciones con compra -->
+            <section id="funciones" class="seccion">
+                <h2>Próximas funciones</h2>
+
+                <label for="cliente">Cliente:</label>
+                <input type="text" id="cliente" maxlength="100" placeholder="Ej: Vera Domínguez">
+
+                <p id="mensaje" class="mensaje"></p>
+
+                <div id="listadoFunciones" class="tarjetas"></div>
+            </section>
+
+            <!-- Cartelera + laboratorio -->
+            <section id="cartelera" class="seccion">
+                <h2>Cartelera</h2>
+                <table class="tabla" id="tablaCartelera">
+                    <thead>
+                        <tr>
+                            <th>Película</th>
+                            <th>Género</th>
+                            <th>Duración</th>
+                            <th>Funciones</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+
+                <h2 id="laboratorio" class="titulo-lab">Laboratorio: secuencial vs paralelo</h2>
+                <p class="explicacion">
+                    Cada botón ejecuta TRES consultas que tardan 1 segundo cada una.
+                    Mirá la diferencia de tiempos (y la consola del servidor).
+                </p>
+                <div class="botones-lab">
+                    <button id="btnSecuencial">🐢 En secuencia</button>
+                    <button id="btnParalelo">🐇 En paralelo</button>
+                </div>
+                <div id="resultadoLab" class="resultado-lab"></div>
+            </section>
+
+        </div>
+
+    </main>
+
+    <footer class="pie">
+        <p>©2026 Cine Avenida. Todos los derechos reservados.</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
