@@ -1,7 +1,6 @@
 
 const API_URL = "http://localhost:3000/api";
 
-// Elementos del DOM
 const inputCliente = document.querySelector("#cliente");
 const listadoFunciones = document.querySelector("#listadoFunciones");
 const cuerpoCartelera = document.querySelector("#tablaCartelera tbody");
@@ -20,10 +19,12 @@ const formatoPrecio = new Intl.NumberFormat("es-AR", {
 });
 
 const formatoFuncion = new Intl.DateTimeFormat("es-AR", {
-    weekday: "short", day: "2-digit", month: "2-digit",
-    hour: "2-digit", minute: "2-digit"
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
 });
-
 
 async function cargarInicio() {
     try {
@@ -54,6 +55,15 @@ function mostrarResumen(resumen) {
 function mostrarCartelera(cartelera) {
     cuerpoCartelera.innerHTML = "";
 
+    if (!cartelera || cartelera.length === 0) {
+        cuerpoCartelera.innerHTML = `
+            <tr>
+                <td colspan="4">No hay películas en cartelera.</td>
+            </tr>
+        `;
+        return;
+    }
+
     cartelera.forEach(pelicula => {
         cuerpoCartelera.innerHTML += `
             <tr>
@@ -69,32 +79,83 @@ function mostrarCartelera(cartelera) {
 function mostrarFunciones(funciones) {
     listadoFunciones.innerHTML = "";
 
-    if (funciones.length === 0) {
-        listadoFunciones.innerHTML = '<p class="sin-resultados">No hay funciones programadas.</p>';
+    if (!funciones || funciones.length === 0) {
+        listadoFunciones.innerHTML = `
+            <p class="sin-resultados">
+                No hay funciones programadas.
+            </p>
+        `;
         return;
     }
 
     funciones.forEach(funcion => {
         const agotada = funcion.disponibles <= 0;
-        const porcentaje = Math.round((funcion.vendidas / funcion.capacidad) * 100);
+
+        const porcentaje = funcion.capacidad > 0
+            ? Math.min(
+                100,
+                Math.round((funcion.vendidas / funcion.capacidad) * 100)
+            )
+            : 0;
 
         listadoFunciones.innerHTML += `
             <div class="tarjeta ${agotada ? "agotada" : ""}">
-                <h3>${funcion.pelicula}</h3>
-                <p>Sala ${funcion.sala} · ${formatoFuncion.format(new Date(funcion.fechaHora))} hs</p>
-                <p>${formatoPrecio.format(funcion.precio)} por entrada</p>
-                <div class="barra">
-                    <div class="barra-relleno" style="width: ${porcentaje}%"></div>
+                
+                <div class="cabecera-tarjeta">
+                    <h3>${funcion.pelicula}</h3>
+                    ${agotada ? '<span class="estado-agotada">AGOTADA</span>' : ''}
                 </div>
-                <p class="ocupacion">
-                    ${funcion.vendidas}/${funcion.capacidad} vendidas
-                    ${agotada ? "· <strong>AGOTADA</strong>" : `· ${funcion.disponibles} libres`}
+
+                <div class="datos-funcion">
+                    <p>
+                        <strong>Sala ${funcion.sala}</strong>
+                    </p>
+
+                    <p>
+                        ${formatoFuncion.format(new Date(funcion.fechaHora))}
+                    </p>
+                </div>
+
+                <p class="precio">
+                    ${formatoPrecio.format(funcion.precio)}
+                    <span>por entrada</span>
                 </p>
+
+                <div class="barra">
+                    <div
+                        class="barra-relleno"
+                        style="width: ${porcentaje}%">
+                    </div>
+                </div>
+
+                <p class="ocupacion">
+                    ${funcion.vendidas}/${funcion.capacidad} entradas vendidas
+                    ${agotada
+                ? ""
+                : ` · ${funcion.disponibles} lugares disponibles`
+            }
+                </p>
+
                 <div class="compra">
-                    <input type="number" min="1" value="2" id="cant-${funcion.idFuncion}"
-                           aria-label="Cantidad" ${agotada ? "disabled" : ""}>
-                    <button data-id="${funcion.idFuncion}" ${agotada ? "disabled" : ""}>
-                        ${agotada ? "Agotada" : "Comprar"}
+                    <label for="cant-${funcion.idFuncion}">
+                        Cantidad
+                    </label>
+
+                    <input
+                        type="number"
+                        min="1"
+                        max="${funcion.disponibles}"
+                        value="1"
+                        id="cant-${funcion.idFuncion}"
+                        aria-label="Cantidad de entradas"
+                        ${agotada ? "disabled" : ""}
+                    >
+
+                    <button
+                        data-id="${funcion.idFuncion}"
+                        ${agotada ? "disabled" : ""}
+                    >
+                        ${agotada ? "Agotada" : "Comprar entradas"}
                     </button>
                 </div>
             </div>
@@ -104,72 +165,140 @@ function mostrarFunciones(funciones) {
 
 async function comprar(idFuncion) {
     const cliente = inputCliente.value.trim();
-    const cantidad = Number(document.querySelector(`#cant-${idFuncion}`).value);
+    const campoCantidad = document.querySelector(`#cant-${idFuncion}`);
 
     if (!cliente) {
-        mostrarMensaje("Primero escribí el nombre del cliente.", "error");
+        mostrarMensaje(
+            "Primero escribí el nombre del cliente.",
+            "error"
+        );
+        inputCliente.focus();
+        return;
+    }
+
+    if (!campoCantidad) {
+        mostrarMensaje(
+            "No se pudo obtener la cantidad de entradas.",
+            "error"
+        );
+        return;
+    }
+
+    const cantidad = Number(campoCantidad.value);
+
+    if (!Number.isInteger(cantidad) || cantidad < 1) {
+        mostrarMensaje(
+            "La cantidad debe ser de al menos 1 entrada.",
+            "error"
+        );
+        campoCantidad.focus();
         return;
     }
 
     try {
         const respuesta = await fetch(`${API_URL}/entradas`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ idFuncion, cliente, cantidad })
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                idFuncion,
+                cliente,
+                cantidad
+            })
         });
 
         const data = await respuesta.json();
 
         if (!respuesta.ok) {
-            throw new Error(data.mensaje);
+            throw new Error(
+                data.mensaje || "No se pudo realizar la compra."
+            );
         }
 
-        mostrarMensaje(`${data.mensaje} — total: ${formatoPrecio.format(data.total)}`, "ok");
-        cargarInicio();
+        mostrarMensaje(
+            `${data.mensaje} — Total: ${formatoPrecio.format(data.total)}`,
+            "ok"
+        );
+
+        inputCliente.value = "";
+
+        setTimeout(() => {
+            mensaje.textContent = "";
+            mensaje.className = "mensaje";
+        }, 3000);
+
+        await cargarInicio();
 
     } catch (error) {
-        mostrarMensaje(`Error: ${error.message}`, "error");
+        mostrarMensaje(
+            `Error: ${error.message}`,
+            "error"
+        );
         console.error(error);
     }
 }
 
-listadoFunciones.addEventListener("click", (evento) => {
+listadoFunciones.addEventListener("click", evento => {
     const boton = evento.target.closest("button[data-id]");
-    if (!boton || boton.disabled) return;
+
+    if (!boton || boton.disabled) {
+        return;
+    }
+
     comprar(Number(boton.dataset.id));
 });
-
 
 async function correrDemo(modo) {
     btnSecuencial.disabled = true;
     btnParalelo.disabled = true;
-    resultadoLab.innerHTML += `<div class="medicion ${modo === "secuencial" ? "lenta" : "rapida"}">⏱ Midiendo en ${modo}...</div>`;
+
+    resultadoLab.innerHTML += `
+        <div class="medicion ${modo === "secuencial" ? "lenta" : "rapida"}">
+            ⏱ Midiendo en ${modo}...
+        </div>
+    `;
+
+    const medicion = resultadoLab.lastElementChild;
 
     try {
         const respuesta = await fetch(`${API_URL}/demo/${modo}`);
         const data = await respuesta.json();
 
-        // Reemplaza el "midiendo" por el resultado real
-        resultadoLab.lastElementChild.textContent =
-            `${modo === "secuencial" ? "🐢" : "🐇"} 3 consultas de 1 segundo en ${modo.toUpperCase()}: ${data.milisegundos} ms`;
+        if (!respuesta.ok) {
+            throw new Error(
+                data.mensaje || "Error al ejecutar la demo."
+            );
+        }
+
+        medicion.textContent =
+            `${modo === "secuencial" ? "🐢" : "🐇"} ` +
+            `3 consultas de 1 segundo en ${modo.toUpperCase()}: ` +
+            `${data.milisegundos} ms`;
 
     } catch (error) {
-        resultadoLab.lastElementChild.textContent = "Error al correr la demo.";
+        medicion.textContent = "Error al correr la demo.";
         console.error(error);
+
     } finally {
         btnSecuencial.disabled = false;
         btnParalelo.disabled = false;
     }
 }
 
-btnSecuencial.addEventListener("click", () => correrDemo("secuencial"));
-btnParalelo.addEventListener("click", () => correrDemo("paralelo"));
+btnSecuencial.addEventListener(
+    "click",
+    () => correrDemo("secuencial")
+);
 
+btnParalelo.addEventListener(
+    "click",
+    () => correrDemo("paralelo")
+);
 
 function mostrarMensaje(texto, tipo) {
     mensaje.textContent = texto;
     mensaje.className = `mensaje ${tipo}`;
 }
-
 
 cargarInicio();

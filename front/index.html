@@ -4,58 +4,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cine Avenida - Boletería</title>
+    <title>Cine Avenida</title>
     <link rel="stylesheet" href="estilos.css">
 </head>
 
 <body>
 
     <header class="encabezado">
-        <h1> CINE AVENIDA</h1>
-        <p>Boletería y cartelera</p>
+        <div class="encabezado-contenido">
+            <div class="logo">
+                <span class="logo-icono">🎬</span>
+                <div>
+                    <h1>CINE AVENIDA</h1>
+                    <p>Cartelera y venta de entradas</p>
+                </div>
+            </div>
+        </div>
     </header>
 
     <nav class="navegacion">
-        <a href="#funciones">Funciones</a>
-        <a href="#cartelera">Cartelera</a>
-        <a href="#laboratorio">Laboratorio async</a>
+        <div class="nav-contenido">
+            <a href="#cartelera">Cartelera</a>
+            <a href="#funciones">Funciones</a>
+            <a href="#laboratorio">Laboratorio</a>
+        </div>
     </nav>
 
     <main class="principal">
 
-        <!-- KPIs -->
-        <section class="resumen">
-            <div class="kpi">
-                <p class="kpi-valor" id="kpiEntradas">—</p>
-                <p class="kpi-titulo">Entradas vendidas</p>
-            </div>
-            <div class="kpi">
-                <p class="kpi-valor" id="kpiRecaudado">—</p>
-                <p class="kpi-titulo">Recaudado</p>
-            </div>
-            <div class="kpi">
-                <p class="kpi-valor" id="kpiFunciones">—</p>
-                <p class="kpi-titulo">Funciones próximas</p>
+        <section class="bienvenida">
+            <div>
+                <span class="etiqueta">CARTELERA</span>
+                <h2>Disfrutá tu próxima película</h2>
+                <p>Elegí una función y comprá tus entradas de forma rápida y sencilla.</p>
             </div>
         </section>
 
-        <div class="fila">
+        <section class="resumen">
+            <div class="kpi">
+                <div class="kpi-icono">🎟️</div>
+                <div>
+                    <p class="kpi-valor" id="kpiEntradas">—</p>
+                    <p class="kpi-titulo">Entradas vendidas</p>
+                </div>
+            </div>
 
-            <!-- Funciones con compra -->
-            <section id="funciones" class="seccion">
-                <h2>Próximas funciones</h2>
+            <div class="kpi">
+                <div class="kpi-icono">💰</div>
+                <div>
+                    <p class="kpi-valor" id="kpiRecaudado">—</p>
+                    <p class="kpi-titulo">Recaudado</p>
+                </div>
+            </div>
 
-                <label for="cliente">Cliente:</label>
-                <input type="text" id="cliente" maxlength="100" placeholder="Ej: Vera Domínguez">
+            <div class="kpi">
+                <div class="kpi-icono">🎬</div>
+                <div>
+                    <p class="kpi-valor" id="kpiFunciones">—</p>
+                    <p class="kpi-titulo">Funciones próximas</p>
+                </div>
+            </div>
+        </section>
 
-                <p id="mensaje" class="mensaje"></p>
+        <section id="cartelera" class="bloque">
 
-                <div id="listadoFunciones" class="tarjetas"></div>
-            </section>
+            <div class="titulo-seccion">
+                <div>
+                    <span class="etiqueta">HOY EN CINE AVENIDA</span>
+                    <h2>Cartelera</h2>
+                </div>
+            </div>
 
-            <!-- Cartelera + laboratorio -->
-            <section id="cartelera" class="seccion">
-                <h2>Cartelera</h2>
+            <div class="cartelera-contenedor">
                 <table class="tabla" id="tablaCartelera">
                     <thead>
                         <tr>
@@ -67,28 +87,78 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+            </div>
 
-                <h2 id="laboratorio" class="titulo-lab">Laboratorio: secuencial vs paralelo</h2>
-                <p class="explicacion">
-                    Cada botón ejecuta TRES consultas que tardan 1 segundo cada una.
-                    Mirá la diferencia de tiempos (y la consola del servidor).
-                </p>
-                <div class="botones-lab">
-                    <button id="btnSecuencial">🐢 En secuencia</button>
-                    <button id="btnParalelo">🐇 En paralelo</button>
+        </section>
+
+        <section id="funciones" class="bloque">
+
+            <div class="titulo-seccion">
+                <div>
+                    <span class="etiqueta">ELEGÍ TU FUNCIÓN</span>
+                    <h2>Próximas funciones</h2>
                 </div>
-                <div id="resultadoLab" class="resultado-lab"></div>
-            </section>
+            </div>
 
-        </div>
+            <div class="cliente-box">
+                <div class="cliente-titulo">
+                    <span>👤</span>
+                    <div>
+                        <h3>Datos de la compra</h3>
+                        <p>Ingresá el nombre del cliente antes de comprar.</p>
+                    </div>
+                </div>
+
+                <label for="cliente">Nombre del cliente</label>
+                <input type="text" id="cliente" maxlength="100" placeholder="Ej: Vera Domínguez">
+            </div>
+
+            <p id="mensaje" class="mensaje"></p>
+
+            <div id="listadoFunciones" class="tarjetas"></div>
+
+        </section>
+
+        <section id="laboratorio" class="laboratorio">
+
+            <div class="lab-cabecera">
+                <div>
+
+                    <h2>Laboratorio async</h2>
+                    <p>
+                        Compará el tiempo de ejecución entre consultas
+                        secuenciales y paralelas.
+                    </p>
+                </div>
+
+            </div>
+
+            <div class="lab-contenido">
+
+                <div class="lab-info">
+                    <p>
+                        Cada opción ejecuta tres consultas que tardan
+                        aproximadamente un segundo cada una.
+                    </p>
+                    <p>
+                        En paralelo deberían terminar mucho más rápido.
+                    </p>
+                </div>
+
+
+
+            </div>
+
+        </section>
 
     </main>
 
-    <footer class="pie">
-        <p>©2026 Cine Avenida. Todos los derechos reservados.</p>
+    <footer>
+        <p>© 2026 Cine Avenida</p>
     </footer>
 
     <script src="app.js"></script>
+
 </body>
 
 </html>
